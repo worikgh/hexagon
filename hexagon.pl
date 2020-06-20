@@ -1,11 +1,16 @@
 #!/usr/bin/perl -w
 use strict;
 use Math::Trig;
-my $scale = 6;
 my $R = 280;
 my $r = cos(deg2rad 30) * $R;
-my $repeat=4;
-my $width = 5;
+
+# Sets the size.  This many hexegons accross (x)  and tall (y).  
+my $repeatx = 7;
+my $repeaty = 5;
+
+# With of the pen 
+my $stroke_width = 5;
+
 my $colour = 'red';
 my $fill = 'transparent';
 
@@ -56,14 +61,14 @@ sub hexagon( $$$$ ) {
     my $ret = '';
     $ret .= "<polyline points=".
 	"'$x1, $y1 $x2p, $y2 $x3p, $y3 $x4, $y4 $x5, $y5 $x6, $y6 $x1, $y1' ".
-	"stroke='$colour' fill='$fill' stroke-width='$width'/>\n";
+	"stroke='$colour' fill='$fill' stroke-width='$stroke_width'/>\n";
     $ret;
 }
 
 open(my $fho, ">hexagon.svg") or die $!;
 
-my $maxx = 2*$repeat*$R;
-my $maxy = 2*$repeat*$r;
+my $maxx = 4.0*$repeatx*$R;
+my $maxy = 2.5*$repeaty*$r;
 my $svg = '
     <svg version="1.1"
     width="'.$maxx.'" height="'.$maxy.'"
@@ -72,19 +77,24 @@ my $svg = '
 
 my $y = $r;
 my $odd = 1;
+my $row = 0;
+my $column = 0;
 while(1){
-
+    $row++;
+    $row == $repeaty * 2 and last;
+    
     # Even and odd rows are staggered by displacing the first hexagon
     my $x = $odd?($R*2.5):$R;
     
+    $column = 0;
     while(1){
 	$svg .= hexagon($x, $y, $R, $r);
 	$x += (3*$R);
-	$x >= $maxx and last;
+	$column++; # Columns are stagered with a blank between hexegons
+	$column == int($repeatx/2) and last;
     }
     $odd = $odd?0:1;
     $y += $r;
-    $y >= $maxy and last;
 }
 
 $svg .= '
